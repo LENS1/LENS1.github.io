@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LENS: Loss-Aligned Directional Salience Calibration for LLM Compression." />
+    <meta name="theme-color" content="#f7f1e7" />
+    <meta property="og:title" content="LENS — Loss-Aligned Calibration for LLM Compression" />
+    <meta property="og:description" content="What survives is not enough. Calibrate the retained directions of a compressed LLM without changing its structure or inference cost." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://lens1.github.io/assets/images/lens-social-preview.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LENS — Loss-Aligned Calibration for LLM Compression" />
+    <meta name="twitter:description" content="Calibrate the retained directions of a compressed LLM without changing its structure or inference cost." />
+    <meta name="twitter:image" content="https://lens1.github.io/assets/images/lens-social-preview.png" />
+    <title>LENS — Loss-Aligned Calibration for LLM Compression</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="progress-track" aria-hidden="true"><div id="progress-bar"></div></div>
+
+    <nav class="site-nav" aria-label="Project sections">
+      <a class="brand" href="#top" aria-label="LENS home"><span class="brand-mark">L</span><span>LENS</span></a>
+      <div class="nav-links">
+        <a href="#overview">Overview</a>
+        <a href="#method">Method</a>
+        <a href="#results">Results</a>
+        <a href="#analysis">Analysis</a>
+        <a href="#resources">Resources</a>
+      </div>
+      <a class="nav-code" href="https://github.com/LENS1/LENS_code" target="_blank" rel="noreferrer">Code <span aria-hidden="true">↗</span></a>
+    </nav>
+
+    <header id="top" class="hero">
+      <canvas id="hero-canvas" aria-hidden="true"></canvas>
+      <div class="hero-noise" aria-hidden="true"></div>
+      <div class="hero-content">
+        <p class="eyebrow"><span></span> ICLR 2027 submission · LLM compression</p>
+        <h1>What survives<br /><em>is not enough.</em></h1>
+        <p class="hero-copy">LENS calibrates the salience of what compression keeps—without changing its rank, retained subspace, or inference cost.</p>
+        <p class="authors">Anonymous Authors</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#overview">Explore LENS <span aria-hidden="true">↓</span></a>
+          <a class="button button-secondary" href="https://github.com/LENS1/LENS_code" target="_blank" rel="noreferrer">View code <span aria-hidden="true">↗</span></a>
+        </div>
+        <dl class="hero-facts">
+          <div><dt>Structure</dt><dd>Fixed rank &amp; subspace</dd></div>
+          <div><dt>Calibration</dt><dd>Amplify → Suppress</dd></div>
+          <div><dt>Inference</dt><dd>No added operations</dd></div>
+        </dl>
+      </div>
+      <div class="hero-equation" aria-label="Compressed weight factorization">
+        <span>W̃</span><b>=</b><span>U</span><b>×</b><span>V</span>
+        <small>calibrate U · preserve the compressed structure</small>
+      </div>
+    </header>
+
+    <main>
+      <section id="overview" class="section section-overview reveal">
+        <div class="section-intro">
+          <p class="section-number">01 / Overview</p>
+          <h2>Compression retains a subspace.<br />Loss decides its <em>salience.</em></h2>
+          <p>Low-rank compression decides <em>which</em> directions survive. LENS asks the missing question: should each retained direction contribute more, less, or not at all to the language-modeling objective?</p>
+        </div>
+        <figure class="motivation-figure paper-frame">
+          <img src="assets/images/motivation.png" alt="LENS motivation: low-rank compression retains a subspace, then LENS amplifies, keeps neutral, or suppresses retained directions based on loss response." />
+          <figcaption>Fig. 1 · Retaining a direction does not guarantee that its contribution is calibrated to the task loss.</figcaption>
+        </figure>
+        <div class="insight-grid">
+          <article class="insight-card coral"><span>01</span><h3>What survives</h3><p>Compression fixes a compact retained representation under a strict parameter budget.</p></article>
+          <article class="insight-card indigo"><span>02</span><h3>What responds</h3><p>The same subspace can contain directions with distinct, even opposing, loss responses.</p></article>
+          <article class="insight-card green"><span>03</span><h3>What LENS calibrates</h3><p>Directional gain is aligned to loss, then folded back into the fixed low-rank factors.</p></article>
+        </div>
+      </section>
+
+      <section id="method" class="section section-method reveal">
+        <div class="section-intro section-intro-wide">
+          <p class="section-number">02 / Method</p>
+          <h2>Keep the compressed model.<br /><em>Recalibrate its contribution.</em></h2>
+          <p>At every stage, LENS identifies reliable directions in the retained low-rank space, estimates their relative gains, and accepts the joint update only when held-out NLL improves reliably.</p>
+        </div>
+
+        <div class="method-grid">
+          <div class="structure-card paper-frame">
+            <div class="card-kicker">What changes?</div>
+            <div class="module-switch" role="tablist" aria-label="Compressed module components">
+              <button class="active" role="tab" aria-selected="true" data-part="u">Output factor U</button>
+              <button role="tab" aria-selected="false" data-part="v">Input factor V</button>
+              <button role="tab" aria-selected="false" data-part="columns">Preserved columns</button>
+            </div>
+            <div class="factorization-stage" data-active-part="u">
+              <div class="matrix dense-matrix"><span>Dense W</span></div>
+              <div class="factor-arrow" aria-hidden="true">→</div>
+              <div class="factor-group">
+                <div class="matrix u-matrix"><span>U</span><i></i><i></i><i></i></div>
+                <b>×</b>
+                <div class="matrix v-matrix"><span>V</span><i></i><i></i><i></i></div>
+              </div>
+              <div class="preserved-columns"><span>C</span><i></i><i></i></div>
+            </div>
+            <p id="part-description" class="part-description"><strong>LENS updates only U.</strong> The calibrated gain is folded offline into the output factor; rank, V, preserved columns, and inference cost stay fixed.</p>
+          </div>
+
+          <div class="method-placeholder paper-frame" aria-label="Figure 2 method overview placeholder">
+            <div class="placeholder-label">Fig. 2</div>
+            <div class="placeholder-copy">
+              <span class="placeholder-symbol">↘</span>
+              <h3>Framework overview<br />in preparation</h3>
+              <p>The final paper flowchart will be placed here without changing this layout.</p>
+            </div>
+            <div class="placeholder-rule"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section protocol-section reveal" aria-labelledby="protocol-title">
+        <div class="section-intro section-intro-wide">
+          <p class="section-number">03 / Protocol</p>
+          <h2 id="protocol-title">A correction earns the right<br />to be applied.</h2>
+          <p>The calibration protocol separates discovery, fitting, scale selection, and final acceptance. Test and downstream benchmarks remain sealed until evaluation.</p>
+        </div>
+        <div class="protocol-shell paper-frame">
+          <ol class="protocol-steps">
+            <li class="discover"><span class="step-index">1</span><strong>Discover</strong><small>128 Train windows</small><p>Build the response eigenbasis within the retained subspace.</p></li>
+            <li class="fit"><span class="step-index">2</span><strong>Validate directions</strong><small>64 Train windows</small><p>Keep only directions whose confidence interval supports their sign.</p></li>
+            <li class="select"><span class="step-index">3</span><strong>Select scale</strong><small>64 independent Train windows</small><p>Choose the shared feasible scale with paired NLL.</p></li>
+            <li class="gate"><span class="step-index">4</span><strong>Acceptance gate</strong><small>64 Validation windows</small><p>Apply only when the mean and 95% upper bound both improve.</p></li>
+          </ol>
+          <div class="protocol-footer"><span class="locked-mark" aria-hidden="true">⌁</span><p><strong>Evaluation stays untouched.</strong> No WikiText-2 Test or downstream task is used for calibration.</p></div>
+        </div>
+      </section>
+
+      <section id="results" class="section results-section reveal">
+        <div class="section-intro section-intro-wide">
+          <p class="section-number">04 / Main Results</p>
+          <h2>Same compression budget.<br /><em>Stronger retained models.</em></h2>
+          <p>At a unified 20% compression ratio, LENS achieves the lowest WikiText-2 perplexity and the highest average downstream accuracy across four model families.</p>
+        </div>
+        <div class="results-shell paper-frame">
+          <div class="results-toolbar">
+            <div class="model-tabs" role="tablist" aria-label="Select a language model">
+              <button class="active" role="tab" aria-selected="true" data-model="llama2">LLaMA-2-7B</button>
+              <button role="tab" aria-selected="false" data-model="qwen3">Qwen3-8B</button>
+              <button role="tab" aria-selected="false" data-model="mistral">Mistral-7B</button>
+              <button role="tab" aria-selected="false" data-model="llama31">LLaMA-3.1-8B</button>
+            </div>
+            <p class="results-note">20% decoder-linear parameter budget</p>
+          </div>
+          <div class="scoreboard">
+            <article class="score-card score-ppl"><span>WikiText-2 PPL ↓</span><strong id="lens-ppl">5.61</strong><p><b id="ppl-delta">0.34</b> lower than Duo-SVD</p></article>
+            <article class="score-card score-avg"><span>7-task average ↑</span><strong id="lens-avg">58.07</strong><p><b id="avg-delta">+1.48</b> points over Duo-SVD</p></article>
+            <article class="score-card score-rank"><span>Across all backbones</span><strong>19 / 28</strong><p>first-place task results, including ties</p></article>
+          </div>
+          <div class="results-layout">
+            <div class="comparison-chart"><div class="chart-heading"><span>PPL recovery</span><small>lower is better</small></div><div id="ppl-chart" class="bar-chart" aria-label="Perplexity comparison chart"></div></div>
+            <div class="comparison-chart"><div class="chart-heading"><span>Task capability</span><small>higher is better</small></div><div id="avg-chart" class="bar-chart" aria-label="Average downstream accuracy comparison chart"></div></div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>Method</th><th>PPL ↓</th><th>Avg. ↑</th></tr></thead><tbody id="comparison-table"></tbody></table></div>
+        </div>
+      </section>
+
+      <section class="section sequence-section reveal" aria-labelledby="sequence-title">
+        <div class="sequence-header">
+          <div><p class="section-number">05 / Why A → S?</p><h2 id="sequence-title">Amplify restores.<br />Suppress refines.</h2></div>
+          <p>Suppress is not profiled on the original compressed model. It is reprofiled after Amplify because the loss landscape has changed.</p>
+        </div>
+        <div class="ablation-shell paper-frame">
+          <div class="ablation-select"><label for="ablation-model">Backbone</label><select id="ablation-model"><option value="llama2">LLaMA-2-7B</option><option value="qwen3">Qwen3-8B</option><option value="llama31">LLaMA-3.1-8B</option></select></div>
+          <div id="ablation-chart" class="ablation-chart" aria-label="Ablation chart"></div>
+          <div class="ablation-caption"><span class="amplify-dot"></span>Amplify supplies the primary recovery. <span class="suppress-dot"></span>Suppress becomes valuable after the model is updated and reprofiled.</div>
+        </div>
+      </section>
+
+      <section id="analysis" class="section evidence-section reveal">
+        <div class="section-intro section-intro-wide">
+          <p class="section-number">06 / Evidence</p>
+          <h2>Robust under tighter budgets,<br />different data, and new compressors.</h2>
+          <p>LENS retains its advantage across compression ratios, calibration datasets, low-rank initializers, and subsequent 4-bit quantization.</p>
+        </div>
+        <div class="evidence-tabs" role="tablist" aria-label="Analysis figures">
+          <button class="active" role="tab" aria-selected="true" data-figure="robustness">Robustness</button>
+          <button role="tab" aria-selected="false" data-figure="compatibility">Compatibility</button>
+          <button role="tab" aria-selected="false" data-figure="analysis">Sensitivity</button>
+        </div>
+        <figure class="evidence-figure paper-frame"><img id="evidence-image" src="assets/images/robustness-1.png" alt="LENS results across compression budgets, calibration datasets, other low-rank compressors, and quantization." /><figcaption id="evidence-caption">Compression-ratio robustness, calibration-data robustness, compatibility with other low-rank compressors, and 4-bit quantization.</figcaption></figure>
+      </section>
+
+      <section class="section anatomy-section reveal">
+        <div class="anatomy-copy"><p class="section-number">07 / Calibration Anatomy</p><h2>Structured corrections,<br />not a uniform rescale.</h2><p>Amplify produces broader recovery across layers and module families. The subsequent Suppress stage is smaller and more selective—matching the sequential ablation evidence.</p><div class="mini-legend"><span class="legend-amplify">Amplify</span><span class="legend-suppress">Suppress after Amplify</span></div></div>
+        <figure class="anatomy-figure paper-frame"><img src="assets/images/calibration-anatomy-1.png" alt="Heatmaps showing layer and decoder module calibration changes for Amplify and Suppress across four LLM backbones." /><figcaption>Relative effective-weight changes across decoder layers and module families.</figcaption></figure>
+      </section>
+
+      <section class="section recovery-section reveal">
+        <div class="section-intro section-intro-wide"><p class="section-number">08 / Prediction Recovery</p><h2>Aggregate gains appear<br />in individual decisions.</h2><p>In language modeling, LENS restores the correct next token. In downstream QA, it recovers a correct answer that the frozen Duo-SVD model misses.</p></div>
+        <figure class="recovery-figure paper-frame"><img src="assets/images/prediction-recovery-1.png" alt="Qualitative examples comparing Duo-SVD with LENS on language modeling and downstream question answering." /><figcaption>Representative prediction recovery examples.</figcaption></figure>
+      </section>
+
+      <section id="resources" class="section resources-section reveal">
+        <div class="section-intro section-intro-wide"><p class="section-number">09 / Resources</p><h2>Inspect the method.<br />Reproduce the protocol.</h2><p>The released implementation includes the fixed Duo-SVD baseline, formal A→S calibration, evaluations, and baseline adapters.</p></div>
+        <div class="resource-grid">
+          <a class="resource-card paper-frame" href="https://github.com/LENS1/LENS_code" target="_blank" rel="noreferrer"><span class="resource-icon">⌘</span><h3>Code</h3><p>Released LENS implementation, tests, baselines, and checkpoint utilities.</p><b>Open repository ↗</b></a>
+          <a class="resource-card paper-frame" href="https://github.com/LENS1/LENS_code/blob/main/README.md" target="_blank" rel="noreferrer"><span class="resource-icon">↳</span><h3>Reproduce</h3><p>Run the published compression, calibration, and evaluation pipeline locally.</p><b>Read instructions ↗</b></a>
+          <a class="resource-card paper-frame" href="#citation"><span class="resource-icon">§</span><h3>Citation</h3><p>Use the anonymous submission citation until the public version is available.</p><b>View BibTeX ↓</b></a>
+        </div>
+      </section>
+
+      <section id="citation" class="citation-section reveal">
+        <div><p class="section-number">10 / Citation</p><h2>Cite LENS.</h2></div>
+        <div class="bibtex-wrap"><pre id="bibtex">@article{lens2027,
+  title   = {What Survives Is Not Enough: Loss-Aligned Directional Salience Calibration for LLM Compression},
+  author  = {Anonymous Authors},
+  journal = {ICLR 2027 submission},
+  year    = {2027}
+}</pre><button id="copy-bibtex" class="copy-button">Copy BibTeX</button></div>
+      </section>
+    </main>
+
+    <footer><button id="back-to-top">↑ Back to top</button><p>LENS · Loss-Aligned Directional Salience Calibration · ICLR 2027 submission</p></footer>
+    <script src="app.js"></script>
+  </body>
+</html>
