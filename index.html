@@ -13,6 +13,7 @@
     <meta name="twitter:title" content="LENS — Loss-Aligned Calibration for LLM Compression" />
     <meta name="twitter:description" content="Calibrate the retained directions of a compressed LLM without changing its structure or inference cost." />
     <meta name="twitter:image" content="https://lens1.github.io/assets/images/lens-social-preview.png" />
+    <link rel="icon" type="image/png" href="assets/images/favicon.png" />
     <title>LENS — Loss-Aligned Calibration for LLM Compression</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,21 +41,11 @@
       <div class="hero-content">
         <p class="eyebrow"><span></span> ICLR 2027 submission · LLM compression</p>
         <h1>What survives<br /><em>is not enough.</em></h1>
-        <p class="hero-copy">LENS calibrates the salience of what compression keeps—without changing its rank, retained subspace, or inference cost.</p>
-        <p class="authors">Anonymous Authors</p>
+        <p class="hero-copy">Calibrate what compression retains—without changing its structure or inference cost.</p>
         <div class="hero-actions">
           <a class="button button-primary" href="#overview">Explore LENS <span aria-hidden="true">↓</span></a>
           <a class="button button-secondary" href="https://github.com/LENS1/LENS_code" target="_blank" rel="noreferrer">View code <span aria-hidden="true">↗</span></a>
         </div>
-        <dl class="hero-facts">
-          <div><dt>Structure</dt><dd>Fixed rank &amp; subspace</dd></div>
-          <div><dt>Calibration</dt><dd>Amplify → Suppress</dd></div>
-          <div><dt>Inference</dt><dd>No added operations</dd></div>
-        </dl>
-      </div>
-      <div class="hero-equation" aria-label="Compressed weight factorization">
-        <span>W̃</span><b>=</b><span>U</span><b>×</b><span>V</span>
-        <small>calibrate U · preserve the compressed structure</small>
       </div>
     </header>
 
@@ -136,29 +127,37 @@
       <section id="results" class="section results-section reveal">
         <div class="section-intro section-intro-wide">
           <p class="section-number">04 / Main Results</p>
-          <h2>Same compression budget.<br /><em>Stronger retained models.</em></h2>
-          <p>At a unified 20% compression ratio, LENS achieves the lowest WikiText-2 perplexity and the highest average downstream accuracy across four model families.</p>
+          <h2>A fixed budget.<br /><em>Clearer recovery.</em></h2>
+          <p>At the same 20% decoder-linear parameter budget, LENS improves both WikiText-2 perplexity and average downstream accuracy on every backbone.</p>
         </div>
         <div class="results-shell paper-frame">
           <div class="results-toolbar">
-            <div class="model-tabs" role="tablist" aria-label="Select a language model">
-              <button class="active" role="tab" aria-selected="true" data-model="llama2">LLaMA-2-7B</button>
-              <button role="tab" aria-selected="false" data-model="qwen3">Qwen3-8B</button>
-              <button role="tab" aria-selected="false" data-model="mistral">Mistral-7B</button>
-              <button role="tab" aria-selected="false" data-model="llama31">LLaMA-3.1-8B</button>
-            </div>
+            <p class="results-note">Direct comparison: frozen Duo-SVD → LENS</p>
             <p class="results-note">20% decoder-linear parameter budget</p>
           </div>
-          <div class="scoreboard">
-            <article class="score-card score-ppl"><span>WikiText-2 PPL ↓</span><strong id="lens-ppl">5.61</strong><p><b id="ppl-delta">0.34</b> lower than Duo-SVD</p></article>
-            <article class="score-card score-avg"><span>7-task average ↑</span><strong id="lens-avg">58.07</strong><p><b id="avg-delta">+1.48</b> points over Duo-SVD</p></article>
-            <article class="score-card score-rank"><span>Across all backbones</span><strong>19 / 28</strong><p>first-place task results, including ties</p></article>
+          <div class="backbone-results" aria-label="LENS results across four language-model backbones">
+            <article class="backbone-card">
+              <h3>LLaMA-2-7B</h3>
+              <div class="metric-pair"><div class="metric-label">WikiText-2 PPL <span>↓</span></div><div class="metric-values"><span><small>Duo-SVD</small>5.95</span><b>→</b><strong><small>LENS</small>5.61</strong><em>−0.34</em></div></div>
+              <div class="metric-pair"><div class="metric-label">7-task average <span>↑</span></div><div class="metric-values"><span><small>Duo-SVD</small>56.59</span><b>→</b><strong><small>LENS</small>58.07</strong><em>+1.48</em></div></div>
+            </article>
+            <article class="backbone-card">
+              <h3>Qwen3-8B</h3>
+              <div class="metric-pair"><div class="metric-label">WikiText-2 PPL <span>↓</span></div><div class="metric-values"><span><small>Duo-SVD</small>7.54</span><b>→</b><strong><small>LENS</small>7.34</strong><em>−0.20</em></div></div>
+              <div class="metric-pair"><div class="metric-label">7-task average <span>↑</span></div><div class="metric-values"><span><small>Duo-SVD</small>66.52</span><b>→</b><strong><small>LENS</small>66.63</strong><em>+0.11</em></div></div>
+            </article>
+            <article class="backbone-card">
+              <h3>Mistral-7B</h3>
+              <div class="metric-pair"><div class="metric-label">WikiText-2 PPL <span>↓</span></div><div class="metric-values"><span><small>Duo-SVD</small>5.81</span><b>→</b><strong><small>LENS</small>5.51</strong><em>−0.30</em></div></div>
+              <div class="metric-pair"><div class="metric-label">7-task average <span>↑</span></div><div class="metric-values"><span><small>Duo-SVD</small>59.61</span><b>→</b><strong><small>LENS</small>61.59</strong><em>+1.98</em></div></div>
+            </article>
+            <article class="backbone-card">
+              <h3>LLaMA-3.1-8B</h3>
+              <div class="metric-pair"><div class="metric-label">WikiText-2 PPL <span>↓</span></div><div class="metric-values"><span><small>Duo-SVD</small>8.68</span><b>→</b><strong><small>LENS</small>7.95</strong><em>−0.73</em></div></div>
+              <div class="metric-pair"><div class="metric-label">7-task average <span>↑</span></div><div class="metric-values"><span><small>Duo-SVD</small>60.30</span><b>→</b><strong><small>LENS</small>61.86</strong><em>+1.56</em></div></div>
+            </article>
           </div>
-          <div class="results-layout">
-            <div class="comparison-chart"><div class="chart-heading"><span>PPL recovery</span><small>lower is better</small></div><div id="ppl-chart" class="bar-chart" aria-label="Perplexity comparison chart"></div></div>
-            <div class="comparison-chart"><div class="chart-heading"><span>Task capability</span><small>higher is better</small></div><div id="avg-chart" class="bar-chart" aria-label="Average downstream accuracy comparison chart"></div></div>
-          </div>
-          <div class="table-wrap"><table><thead><tr><th>Method</th><th>PPL ↓</th><th>Avg. ↑</th></tr></thead><tbody id="comparison-table"></tbody></table></div>
+          <p class="results-proof"><strong>4 / 4</strong> backbones improve on both headline metrics. <span></span> <strong>19 / 28</strong> first-place downstream-task results, including ties.</p>
         </div>
       </section>
 

@@ -16,5 +16,5 @@ Then visit `http://localhost:8000`.
 
 - Replace `assets/images/motivation.png` only with a same-purpose Fig. 1 asset.
 - Replace the Fig. 2 placeholder in `index.html` when the framework overview is finalized.
-- Update `models` and `ablations` in `app.js` whenever paper results are revised.
+- Update the four backbone comparison cards in `index.html` and the `ablations` data in `app.js` whenever paper results are revised.
 - Keep author names, paper URL, checkpoints, and dataset links anonymous until the public version is ready.
