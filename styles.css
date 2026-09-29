@@ -3691,13 +3691,6 @@ footer {
 }
 
 
-/* Full-width Method pipeline keeps the detailed figure legible. */
-
-.method-overview-grid {
-  grid-template-columns: 1fr;
-}
-
-
 .pipeline-figure {
   overflow: hidden;
   margin: 0;

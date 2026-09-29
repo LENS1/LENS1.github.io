@@ -26,19 +26,6 @@ const figureInfo = {
   }
 };
 
-
-const partCopy = {
-  u:
-    "<strong>LENS updates only U.</strong> The calibrated gain is folded offline into the output factor; rank, V, preserved columns, and inference cost stay fixed.",
-
-  v:
-    "<strong>V stays fixed.</strong> LENS does not alter the input-side low-rank coordinates selected by compression.",
-
-  columns:
-    "<strong>Preserved columns stay fixed.</strong> The column-preserving branch is outside the gain fold and remains untouched."
-};
-
-
 /* ============================================================
    Ablation chart
    ============================================================ */
@@ -1631,47 +1618,6 @@ if (mainResultsExplorer) {
   );
 
 }
-
-/* ============================================================
-   Method interaction
-   U / V / preserved columns
-   ============================================================ */
-
-document
-  .querySelectorAll(".module-switch button")
-  .forEach((button) => {
-    button.addEventListener("click", () => {
-
-      document
-        .querySelectorAll(".module-switch button")
-        .forEach((item) => {
-          const active = item === button;
-
-          item.classList.toggle("active", active);
-          item.setAttribute(
-            "aria-selected",
-            String(active)
-          );
-        });
-
-      const part = button.dataset.part;
-
-      const stage =
-        document.querySelector(".factorization-stage");
-
-      if (stage) {
-        stage.dataset.activePart = part;
-      }
-
-      const description =
-        document.getElementById("part-description");
-
-      if (description && partCopy[part]) {
-        description.innerHTML = partCopy[part];
-      }
-    });
-  });
-
 
 /* ============================================================
    Ablation backbone selector
