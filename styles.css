@@ -215,9 +215,9 @@ body {
   padding: 152px 0 106px;
 }
 
-.eyebrow,
 .section-number {
-  font-size: 0.82rem;
+  font-size: 0.94rem;
+  font-weight: 600;
 }
 
 .eyebrow {
@@ -3688,6 +3688,26 @@ footer {
   height: 1px;
   background: var(--coral);
   content: "";
+}
+
+
+/* Full-width Method pipeline keeps the detailed figure legible. */
+
+.method-overview-grid {
+  grid-template-columns: 1fr;
+}
+
+
+.pipeline-figure {
+  overflow: hidden;
+  margin: 0;
+}
+
+
+.pipeline-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 
